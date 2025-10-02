@@ -48,6 +48,12 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
+        CheckForMoveAndJump();
+        CheckForMouseMovement();
+    }
+
+    private void CheckForMoveAndJump()
+    {
         Vector3 forward = transform.TransformDirection(Vector3.forward);
         Vector3 right = transform.TransformDirection(Vector3.right);
         float movementDirectionY = moveDirection.y;
@@ -67,24 +73,24 @@ public class PlayerMovement : MonoBehaviour
             }
         }
 
-        if (characterController.isGrounded)
-        {
-            moveDirection = (forward * moveValue.y) + (right * moveValue.x);
-        }
-        else
-        {
-            if (Math.Abs(momentumVar.x) < Math.Abs(moveDirection.x))
+        moveDirection = (forward * moveValue.y) + (right * moveValue.x);
+        if (!characterController.isGrounded && moveAction.IsPressed())
             {
-                momentumVar.x += moveDirection.x / 3;
-            }
 
-            if (Math.Abs(momentumVar.z) < Math.Abs(moveDirection.z))
-            {
-                momentumVar.z += moveDirection.z / 3;
-            }
-            moveDirection.x = momentumVar.x;
-            moveDirection.z = momentumVar.z;
+            // if (Math.Abs(momentumVar.x) < Math.Abs(moveDirection.x))
+            // {
+                momentumVar.x = Mathf.Lerp(momentumVar.x, moveDirection.x, 0.005f);
+            // }
+
+            // if (Math.Abs(momentumVar.z) < Math.Abs(moveDirection.z))
+            // {
+                momentumVar.z = Mathf.Lerp(momentumVar.z, moveDirection.z, 0.005f);
+
+            // }
+            // moveDirection.x = momentumVar.x;
+            // moveDirection.z = momentumVar.z;
             // moveDirection += ((forward * moveValue.y) + (right * moveValue.x)) * 3/1;
+            // }
         }
 
 
@@ -93,22 +99,21 @@ public class PlayerMovement : MonoBehaviour
         {
             moveDirection.y = jumpPower;
         }
-        else
-        {
-            moveDirection.y = movementDirectionY;
-        }
 
         if (!characterController.isGrounded)
         {
-            moveDirection.y -= gravity * Time.deltaTime;
+            momentumVar.y -= gravity * Time.deltaTime;
+            characterController.Move(momentumVar * Time.deltaTime);
         }
         else
         {
             momentumVar = moveDirection;
+            characterController.Move(moveDirection * Time.deltaTime);
         }
+    }
 
-        characterController.Move(moveDirection * Time.deltaTime);
-
+    private void CheckForMouseMovement()
+    {
         if (canMove)
         {
             Vector2 mouseMovement = lookAction.ReadValue<Vector2>() / 10;
@@ -118,17 +123,17 @@ public class PlayerMovement : MonoBehaviour
             transform.rotation *= Quaternion.Euler(0, mouseMovement.x * lookSpeed, 0);
         }
     }
-    public void OnControllerColliderHit (ControllerColliderHit hit)
+    public void OnControllerColliderHit(ControllerColliderHit hit)
     {
         if ((characterController.collisionFlags & CollisionFlags.Sides) == 0)
         {
             return;
         }
-        if (Vector3.Dot(hit.normal, moveDirection) >= 0)
+        if (Vector3.Dot(hit.normal, momentumVar) >= 0)
         {
             return;
         }
 
-        momentumVar -= hit.normal * Vector3.Dot(hit.normal, moveDirection);
+        momentumVar -= hit.normal * Vector3.Dot(hit.normal, momentumVar);
     }
 }
