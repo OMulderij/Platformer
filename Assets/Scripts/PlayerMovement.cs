@@ -4,17 +4,15 @@ using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.Utilities;
-using UnityEngine.TextCore.Text;
 
 [RequireComponent(typeof(CharacterController))]
 
 public class PlayerMovement : MonoBehaviour
 {
-    InputAction moveAction;
-    InputAction jumpAction;
-    InputAction sprintAction;
-    InputAction lookAction;
+    private InputAction moveAction;
+    private InputAction jumpAction;
+    private InputAction sprintAction;
+    private InputAction lookAction;
 
     public Camera playerCamera;
     public float walkSpeed = 6f;
@@ -26,16 +24,21 @@ public class PlayerMovement : MonoBehaviour
     public float defaultHeight = 2f;
     public float crouchHeight = 1f;
     public float crouchSpeed = 3f;
+    public float coyoteTime = 0.5f;
+    public LayerMask groundMask;
 
     private Vector3 moveDirection = Vector3.zero;
     private Vector3 momentumVar;
     private float rotationX = 0;
     private CharacterController characterController;
+    private Transform playerTransform;
 
     private bool canMove = true;
+    private bool canJump = true;
+    private float timeWhenLastGrounded = 0.0f;
 
 
-    void Start()
+    public void Start()
     {
         characterController = GetComponent<CharacterController>();
         moveAction = InputSystem.actions.FindAction("Move");
@@ -46,7 +49,7 @@ public class PlayerMovement : MonoBehaviour
         Cursor.visible = false;
     }
 
-    void Update()
+    public void Update()
     {
         CheckForMoveAndJump();
         CheckForMouseMovement();
@@ -54,12 +57,12 @@ public class PlayerMovement : MonoBehaviour
 
     private void CheckForMoveAndJump()
     {
+        bool isGrounded = Physics.CheckSphere(transform.position - new Vector3(0, characterController.height / 2, 0), 0.45f, groundMask);
         Vector3 forward = transform.TransformDirection(Vector3.forward);
         Vector3 right = transform.TransformDirection(Vector3.right);
-        float movementDirectionY = moveDirection.y;
+
 
         Vector2 moveValue = new Vector2(0, 0);
-
         if (canMove && moveAction.IsPressed())
         {
             moveValue = moveAction.ReadValue<Vector2>();
@@ -74,39 +77,35 @@ public class PlayerMovement : MonoBehaviour
         }
 
         moveDirection = (forward * moveValue.y) + (right * moveValue.x);
-        if (!characterController.isGrounded && moveAction.IsPressed())
-            {
-
-            // if (Math.Abs(momentumVar.x) < Math.Abs(moveDirection.x))
-            // {
-                momentumVar.x = Mathf.Lerp(momentumVar.x, moveDirection.x, 0.005f);
-            // }
-
-            // if (Math.Abs(momentumVar.z) < Math.Abs(moveDirection.z))
-            // {
-                momentumVar.z = Mathf.Lerp(momentumVar.z, moveDirection.z, 0.005f);
-
-            // }
-            // moveDirection.x = momentumVar.x;
-            // moveDirection.z = momentumVar.z;
-            // moveDirection += ((forward * moveValue.y) + (right * moveValue.x)) * 3/1;
-            // }
-        }
-
-
-
-        if (jumpAction.IsPressed() && canMove && characterController.isGrounded)
+        if (!isGrounded && moveAction.IsPressed())
         {
-            moveDirection.y = jumpPower;
+            momentumVar.x = Mathf.Lerp(momentumVar.x, moveDirection.x, 0.005f);
+            momentumVar.z = Mathf.Lerp(momentumVar.z, moveDirection.z, 0.005f);
         }
 
-        if (!characterController.isGrounded)
+        if (jumpAction.IsPressed() && canMove && canJump && Time.time - timeWhenLastGrounded < coyoteTime)
+        {
+            if (isGrounded)
+            {
+                canJump = false;
+                moveDirection.y = jumpPower;
+            }
+            else
+            {
+                canJump = false;
+                momentumVar.y = jumpPower;
+            }
+        }
+
+        if (!isGrounded)
         {
             momentumVar.y -= gravity * Time.deltaTime;
             characterController.Move(momentumVar * Time.deltaTime);
         }
         else
         {
+            canJump = true;
+            timeWhenLastGrounded = Time.time;
             momentumVar = moveDirection;
             characterController.Move(moveDirection * Time.deltaTime);
         }
