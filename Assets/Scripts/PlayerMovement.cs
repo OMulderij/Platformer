@@ -22,7 +22,7 @@ public class PlayerMovement : MonoBehaviour
     public float lookSpeed = 200f;
     public float lookXLimit = 75f;
     public float defaultHeight = 2f;
-    public float bufferTime = 0.25f;
+    public float bufferTime = 0.1f;
     public LayerMask groundMask;
 
     private Vector3 moveDirection = Vector3.zero;
@@ -34,6 +34,8 @@ public class PlayerMovement : MonoBehaviour
     private bool canMove = true;
     private bool canJump = true;
     private float timeWhenLastGrounded = 0.0f;
+    private float timeWhenLastJumpAction = 0.0f;
+    private float timeSpentCharging = 0.0f;
 
 
     public void Start()
@@ -49,11 +51,11 @@ public class PlayerMovement : MonoBehaviour
 
     public void Update()
     {
-        CheckForMoveAndJump();
+        CheckForMovement();
         CheckForMouseMovement();
     }
 
-    private void CheckForMoveAndJump()
+    private void CheckForMovement()
     {
         bool isGrounded = Physics.CheckSphere(transform.position - new Vector3(0, characterController.height / 2, 0), 0.2f, groundMask);
         Vector3 forward = transform.TransformDirection(Vector3.forward);
@@ -81,10 +83,14 @@ public class PlayerMovement : MonoBehaviour
             momentumVar.z = Mathf.Lerp(momentumVar.z, moveDirection.z, 2f * Time.deltaTime);
         }
 
-        if (jumpAction.IsPressed() && canMove && canJump && Time.time - timeWhenLastGrounded < bufferTime)
+        if (jumpAction.IsPressed())
         {
-            if (isGrounded)
-            {
+            timeWhenLastJumpAction = Time.time;
+        }
+
+        if (canMove && canJump && Math.Abs(timeWhenLastJumpAction - timeWhenLastGrounded) < bufferTime)
+        {
+            if (isGrounded) {
                 canJump = false;
                 moveDirection.y = jumpPower;
             }
