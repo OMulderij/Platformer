@@ -5,10 +5,15 @@ using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-[RequireComponent(typeof(CharacterController))]
 
-public class PlayerMovement : MonoBehaviour
+[RequireComponent(typeof(CharacterController))]
+public class PlayerControl : MonoBehaviour
 {
+    public float maxHealth = 100.0f;
+    public float currentHealth;
+    public Action OnHealthChange;
+
+
     private InputAction moveAction;
     private InputAction jumpAction;
     private InputAction sprintAction;
@@ -19,7 +24,7 @@ public class PlayerMovement : MonoBehaviour
     public float runSpeed = 12f;
     public float jumpPower = 10f;
     public float gravity = 15f;
-    public float lookSpeed = 200f;
+    public float lookSpeed = 4f;
     public float lookXLimit = 75f;
     public float defaultHeight = 2f;
     public float bufferTime = 0.1f;
@@ -35,11 +40,15 @@ public class PlayerMovement : MonoBehaviour
     private bool canJump = true;
     private float timeWhenLastGrounded = 0.0f;
     private float timeWhenLastJumpAction = 0.0f;
-    private float timeSpentCharging = 0.0f;
+    private int manaConsumeMultiplier = 10;
+    private bool isRunning = false;
+    private float timeSpentUsingAbility = 0.0f;
 
 
     public void Start()
     {
+        currentHealth = maxHealth;
+
         characterController = GetComponent<CharacterController>();
         moveAction = InputSystem.actions.FindAction("Move");
         jumpAction = InputSystem.actions.FindAction("Jump");
@@ -63,17 +72,24 @@ public class PlayerMovement : MonoBehaviour
 
 
         Vector2 moveValue = new Vector2(0, 0);
+        isRunning = false;
         if (canMove && moveAction.IsPressed())
         {
             moveValue = moveAction.ReadValue<Vector2>();
-            if (sprintAction.IsPressed())
+            if (sprintAction.IsPressed() && currentHealth > 0)
             {
+                isRunning = true;
                 moveValue *= runSpeed;
             }
             else
             {
                 moveValue *= walkSpeed;
             }
+        }
+
+        if (isRunning)
+        {
+            ChangeHealth(-Time.deltaTime * manaConsumeMultiplier);
         }
 
         moveDirection = (forward * moveValue.y) + (right * moveValue.x);
@@ -90,7 +106,8 @@ public class PlayerMovement : MonoBehaviour
 
         if (canMove && canJump && Math.Abs(timeWhenLastJumpAction - timeWhenLastGrounded) < bufferTime)
         {
-            if (isGrounded) {
+            if (isGrounded)
+            {
                 canJump = false;
                 moveDirection.y = jumpPower;
             }
@@ -103,6 +120,11 @@ public class PlayerMovement : MonoBehaviour
 
         if (!isGrounded)
         {
+            bool touchingCeiling = Physics.CheckSphere(transform.position + new Vector3(0, characterController.height / 2, 0), 0.2f, groundMask);
+            if (touchingCeiling && momentumVar.y > 0)
+            {
+                momentumVar.y = 0;
+            }
             momentumVar.y -= gravity * Time.deltaTime;
             characterController.Move(momentumVar * Time.deltaTime);
         }
@@ -146,11 +168,25 @@ public class PlayerMovement : MonoBehaviour
         {
             return;
         }
+
         if (Vector3.Dot(hit.normal, momentumVar) >= 0)
         {
             return;
         }
 
         momentumVar -= hit.normal * Vector3.Dot(hit.normal, momentumVar);
+    }
+    
+
+    public void ChangeHealth(float changeAmount)
+    {
+        currentHealth += changeAmount;
+
+        if (currentHealth < 0)
+        {
+            currentHealth = 0;
+        }
+
+        OnHealthChange?.Invoke();
     }
 }
