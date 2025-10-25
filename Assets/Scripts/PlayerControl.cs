@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -40,9 +41,9 @@ public class PlayerControl : MonoBehaviour
     private bool canJump = true;
     private float timeWhenLastGrounded = 0.0f;
     private float timeWhenLastJumpAction = 0.0f;
-    private int manaConsumeMultiplier = 10;
+    private int manaConsumeMultiplier = 5;
     private bool isRunning = false;
-    private float timeSpentUsingAbility = 0.0f;
+    // private float timeSpentUsingAbility = 0.0f;
 
 
     public void Start()
@@ -71,6 +72,7 @@ public class PlayerControl : MonoBehaviour
         Vector3 right = transform.TransformDirection(Vector3.right);
 
 
+
         Vector2 moveValue = new Vector2(0, 0);
         isRunning = false;
         if (canMove && moveAction.IsPressed())
@@ -93,10 +95,21 @@ public class PlayerControl : MonoBehaviour
         }
 
         moveDirection = (forward * moveValue.y) + (right * moveValue.x);
-        if (!isGrounded && moveAction.IsPressed())
+
+        CheckForMovingPlatforms();
+
+        if (!isGrounded)
         {
-            momentumVar.x = Mathf.Lerp(momentumVar.x, moveDirection.x, 2f * Time.deltaTime);
-            momentumVar.z = Mathf.Lerp(momentumVar.z, moveDirection.z, 2f * Time.deltaTime);
+            if (moveAction.IsPressed())
+            {
+                momentumVar.x = Mathf.Lerp(momentumVar.x, moveDirection.x, 2f * Time.deltaTime);
+                momentumVar.z = Mathf.Lerp(momentumVar.z, moveDirection.z, 2f * Time.deltaTime);
+            }
+            else
+            {
+                momentumVar.x = Mathf.Lerp(momentumVar.x, 0f, 2f * Time.deltaTime);
+                momentumVar.z = Mathf.Lerp(momentumVar.z, 0f, 2f * Time.deltaTime);
+            }
         }
 
         if (jumpAction.IsPressed())
@@ -137,6 +150,22 @@ public class PlayerControl : MonoBehaviour
         }
     }
 
+
+    private void CheckForMovingPlatforms()
+    {
+        Vector3 raycastDirection = new Vector3(0, -1, 0);
+        if (!Physics.Raycast(transform.position, raycastDirection, out RaycastHit hit, characterController.height / 2 + 0.5f, groundMask))
+        {
+            return;
+        }
+        
+        if (!hit.transform.GetComponent<VelocityCalculator>())
+        {
+            return;
+        }
+
+        characterController.Move(hit.transform.GetComponent<VelocityCalculator>().GetVelocity(this.transform) * Time.deltaTime);
+    }
     private void CheckForMouseMovement()
     {
         if (canMove)
@@ -176,7 +205,7 @@ public class PlayerControl : MonoBehaviour
 
         momentumVar -= hit.normal * Vector3.Dot(hit.normal, momentumVar);
     }
-    
+
 
     public void ChangeHealth(float changeAmount)
     {
@@ -187,6 +216,12 @@ public class PlayerControl : MonoBehaviour
             currentHealth = 0;
         }
 
+        OnHealthChange?.Invoke();
+    }
+
+    public void HealToFull()
+    {
+        currentHealth = maxHealth;
         OnHealthChange?.Invoke();
     }
 }
