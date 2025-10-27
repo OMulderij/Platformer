@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Cinemachine;
 using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -10,40 +11,47 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerControl : MonoBehaviour
 {
-    public float maxHealth = 100.0f;
-    public float currentHealth;
-    public Action OnHealthChange;
-
-
+    // Inputs
     private InputAction moveAction;
     private InputAction jumpAction;
     private InputAction sprintAction;
     private InputAction lookAction;
 
+    // Camera
     public Camera playerCamera;
+    public float lookSpeed = 4f;
+    public float lookXLimit = 75f;
+    private float pitch = 0;
+    private float yaw = 0;
+    
+    // Health
+    public float maxHealth = 100.0f;
+    public float currentHealth;
+    public Action OnHealthChange;
+    
+    // Movement
+    private Vector3 moveDirection = Vector3.zero;
+    private Vector3 momentumVar;
+    public LayerMask groundMask;
+    
+
+    // CharacterController
+    private CharacterController characterController;
+    public float defaultHeight = 2f;
+    private const int manaConsumeMultiplier = 5;
+    private bool canMove = true;
+    private bool hasJumped = false;
+    private bool isRunning = false;
+    private float timeWhenLastGrounded = 0.0f;
+    private float timeWhenLastJumpAction = 0.0f;
     public float walkSpeed = 6f;
     public float runSpeed = 12f;
     public float jumpPower = 10f;
     public float gravity = 15f;
-    public float lookSpeed = 4f;
-    public float lookXLimit = 75f;
-    public float defaultHeight = 2f;
     public float bufferTime = 0.1f;
-    public LayerMask groundMask;
-
-    private Vector3 moveDirection = Vector3.zero;
-    private Vector3 momentumVar;
-    private float pitch = 0;
-    private float yaw = 0;
-    private CharacterController characterController;
-
-    private bool canMove = true;
-    private bool canJump = true;
-    private float timeWhenLastGrounded = 0.0f;
-    private float timeWhenLastJumpAction = 0.0f;
-    private int manaConsumeMultiplier = 5;
-    private bool isRunning = false;
-    // private float timeSpentUsingAbility = 0.0f;
+    private bool doubleJumpAvailable = false;
+    public float jumpDelay = 0.5f;
+    private float doubleJumpManaCost = 20f;
 
 
     public void Start()
@@ -98,6 +106,37 @@ public class PlayerControl : MonoBehaviour
 
         CheckForMovingPlatforms();
 
+        bool jump = false;
+        if (jumpAction.IsPressed())
+        {
+            timeWhenLastJumpAction = Time.time;
+
+            if (doubleJumpAvailable && currentHealth >= doubleJumpManaCost && Time.time - timeWhenLastGrounded > jumpDelay)
+            {
+                jump = true;
+                doubleJumpAvailable = false;
+                ChangeHealth(-doubleJumpManaCost);
+            }
+        }
+
+        if (!hasJumped && Math.Abs(timeWhenLastGrounded - timeWhenLastJumpAction) < bufferTime)
+        {
+            hasJumped = true;
+            jump = true;
+        }
+
+        if (canMove && jump)
+        {
+            if (isGrounded)
+            {
+                moveDirection.y = jumpPower;
+            }
+            else
+            {
+                momentumVar.y = jumpPower;
+            }
+        }
+
         if (!isGrounded)
         {
             if (moveAction.IsPressed())
@@ -110,40 +149,20 @@ public class PlayerControl : MonoBehaviour
                 momentumVar.x = Mathf.Lerp(momentumVar.x, 0f, 2f * Time.deltaTime);
                 momentumVar.z = Mathf.Lerp(momentumVar.z, 0f, 2f * Time.deltaTime);
             }
-        }
 
-        if (jumpAction.IsPressed())
-        {
-            timeWhenLastJumpAction = Time.time;
-        }
-
-        if (canMove && canJump && Math.Abs(timeWhenLastJumpAction - timeWhenLastGrounded) < bufferTime)
-        {
-            if (isGrounded)
-            {
-                canJump = false;
-                moveDirection.y = jumpPower;
-            }
-            else
-            {
-                canJump = false;
-                momentumVar.y = jumpPower;
-            }
-        }
-
-        if (!isGrounded)
-        {
             bool touchingCeiling = Physics.CheckSphere(transform.position + new Vector3(0, characterController.height / 2, 0), 0.2f, groundMask);
             if (touchingCeiling && momentumVar.y > 0)
             {
                 momentumVar.y = 0;
             }
+
             momentumVar.y -= gravity * Time.deltaTime;
             characterController.Move(momentumVar * Time.deltaTime);
         }
         else
         {
-            canJump = true;
+            doubleJumpAvailable = true;
+            hasJumped = false;
             timeWhenLastGrounded = Time.time;
             momentumVar = moveDirection;
             characterController.Move(moveDirection * Time.deltaTime);
@@ -158,7 +177,7 @@ public class PlayerControl : MonoBehaviour
         {
             return;
         }
-        
+
         if (!hit.transform.GetComponent<VelocityCalculator>())
         {
             return;
