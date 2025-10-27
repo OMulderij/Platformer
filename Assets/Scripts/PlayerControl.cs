@@ -164,7 +164,7 @@ public class PlayerControl : MonoBehaviour
             return;
         }
 
-        characterController.Move(hit.transform.GetComponent<VelocityCalculator>().GetVelocity(this.transform) * Time.deltaTime);
+        characterController.Move(hit.transform.GetComponent<VelocityCalculator>().GetVelocity(this.transform));
     }
     private void CheckForMouseMovement()
     {
