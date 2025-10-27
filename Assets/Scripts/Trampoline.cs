@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class ManaWell : MonoBehaviour
+public class Trampoline : MonoBehaviour
 {
     public void OnTriggerStay(Collider collider)
     {
@@ -8,7 +8,6 @@ public class ManaWell : MonoBehaviour
         {
             return;
         }
-        PlayerControl player = collider.GetComponent<PlayerControl>();
-        player.HealToFull();
+        collider.GetComponent<PlayerControl>().TrampolineHit();
     }
 }

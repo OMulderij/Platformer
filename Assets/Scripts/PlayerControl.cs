@@ -52,6 +52,10 @@ public class PlayerControl : MonoBehaviour
     private bool doubleJumpAvailable = false;
     public float jumpDelay = 0.5f;
     private float doubleJumpManaCost = 20f;
+    
+    // In scene objects
+    private float trampolinePower = 15f;
+    private float timeWhenLastOnTrampoline = 0.0f;
 
 
     public void Start()
@@ -129,11 +133,18 @@ public class PlayerControl : MonoBehaviour
         {
             if (isGrounded)
             {
+
                 moveDirection.y = jumpPower;
             }
             else
             {
                 momentumVar.y = jumpPower;
+            }
+
+            if (Time.time - timeWhenLastOnTrampoline < bufferTime)
+            {
+                moveDirection.y += trampolinePower;
+                momentumVar.y += trampolinePower;
             }
         }
 
@@ -223,6 +234,11 @@ public class PlayerControl : MonoBehaviour
         }
 
         momentumVar -= hit.normal * Vector3.Dot(hit.normal, momentumVar);
+    }
+
+    public void TrampolineHit()
+    {
+        timeWhenLastOnTrampoline = Time.time;
     }
 
 
