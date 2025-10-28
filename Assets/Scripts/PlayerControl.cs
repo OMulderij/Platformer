@@ -241,6 +241,11 @@ public class PlayerControl : MonoBehaviour
             return;
         }
 
+        if (currentHealth < platformManaCost)
+        {
+            return;
+        }
+
         if (selectAction.IsPressed())
         {
             if (!Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward, out RaycastHit hit, 25f, groundMask))
@@ -255,8 +260,7 @@ public class PlayerControl : MonoBehaviour
                 placingPlatform = true;
             }
 
-            platformToPlace.transform.position = hit.point;
-            platformToPlace.transform.rotation = Quaternion.LookRotation(hit.normal);
+            platformToPlace.transform.SetPositionAndRotation(hit.point, Quaternion.LookRotation(hit.normal));
         }
         else
         {
@@ -269,11 +273,15 @@ public class PlayerControl : MonoBehaviour
         {
             ChangeHealth(-platformManaCost);
             placingPlatform = false;
+
             platformToPlace.GetComponentInChildren<BoxCollider>().enabled = true;
+            platformToPlace.GetComponent<AbilityPlatform>().StartTimer();
+
             foreach (Transform child in platformToPlace.transform)
             {
                 child.gameObject.layer = 0;
             }
+
             timeWhenLastPlacedPlatform = Time.time;
             platformToPlace = null;
         }

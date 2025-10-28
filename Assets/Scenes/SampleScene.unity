@@ -1204,6 +1204,10 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 9caa3d8a-6b2f-4e8e-8bad-6ede561bd9be
     m_ActionName: UI/TrackedDeviceOrientation
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 2835bb61-449a-4ba8-aed8-9138f18402b5
+    m_ActionName: 'Player/Select[/Mouse/rightButton]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: Keyboard&Mouse
   m_DefaultActionMap: Player
@@ -1235,10 +1239,11 @@ MonoBehaviour:
   gravity: 15
   bufferTime: 0.1
   jumpDelay: 0.5
-  placementCooldown: 0.2
+  placementCooldown: 1
   runSpeed: 12
+  doubleJumpManaCost: 20
+  platformManaCost: 40
   abilityPlatform: {fileID: 8211954688106620555, guid: 995f282eb207b59498838df4ecdb6ef3, type: 3}
-  platformLifetime: 10
 --- !u!1 &1051171614
 GameObject:
   m_ObjectHideFlags: 0
