@@ -1,5 +1,9 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <ui:VisualElement name="ManaBarBackground" style="flex-grow: 1; position: absolute; width: 500px; height: 150px; background-image: url(&quot;project://database/Assets/UI/HealthbarBackground.png?fileID=2800000&amp;guid=0f43ffb1a57a64e419cd76fc88e01d71&amp;type=3#HealthbarBackground&quot;);">
+    <Style src="project://database/Assets/UI/GameUIStyle.uss?fileID=7433441132597879392&amp;guid=2646c3f791775194e9f88a0d15333d3f&amp;type=3#GameUIStyle" />
+    <ui:VisualElement name="ManaBarBackground" class="manabar-size" style="flex-grow: 1; position: absolute; height: 150px; background-image: url(&quot;project://database/Assets/UI/HealthbarBackground.png?fileID=2800000&amp;guid=0f43ffb1a57a64e419cd76fc88e01d71&amp;type=3#HealthbarBackground&quot;);">
+        <ui:VisualElement name="ManaBarMask" style="flex-grow: 1; position: absolute; width: 100%; height: 100%; overflow: hidden; min-width: auto; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; transition-property: width; transition-duration: 0.2s; transition-timing-function: ease;">
+            <ui:VisualElement name="ManaBarFill" class="manabar-size" style="flex-grow: 1; background-image: url(&quot;project://database/Assets/UI/HealthBarFill.png?fileID=2800000&amp;guid=34fb934503b2a2f439c320051951dd81&amp;type=3#HealthBarFill&quot;); position: absolute; height: 100%; overflow: visible; left: -1px;" />
+        </ui:VisualElement>
         <ui:Label text="Label" name="ManaLabel" style="position: absolute; width: 100%; height: 100%; -unity-text-align: middle-left; font-size: 28px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 50px;" />
     </ui:VisualElement>
 </ui:UXML>

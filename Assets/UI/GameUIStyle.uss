@@ -1,0 +1,4 @@
+.manabar-size {
+    width: 500px;
+    height: auto;
+}
