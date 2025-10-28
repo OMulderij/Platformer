@@ -1231,11 +1231,14 @@ MonoBehaviour:
     m_Bits: 1
   defaultHeight: 2
   walkSpeed: 6
-  runSpeed: 12
   jumpPower: 10
   gravity: 15
   bufferTime: 0.1
   jumpDelay: 0.5
+  placementCooldown: 0.2
+  runSpeed: 12
+  abilityPlatform: {fileID: 8211954688106620555, guid: 995f282eb207b59498838df4ecdb6ef3, type: 3}
+  platformLifetime: 10
 --- !u!1 &1051171614
 GameObject:
   m_ObjectHideFlags: 0

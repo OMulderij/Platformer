@@ -16,6 +16,8 @@ public class PlayerControl : MonoBehaviour
     private InputAction jumpAction;
     private InputAction sprintAction;
     private InputAction lookAction;
+    private InputAction selectAction;
+    private InputAction placeAction;
 
     // Camera
     public Camera playerCamera;
@@ -33,29 +35,36 @@ public class PlayerControl : MonoBehaviour
     private Vector3 moveDirection = Vector3.zero;
     private Vector3 momentumVar;
     public LayerMask groundMask;
-    
 
     // CharacterController
     private CharacterController characterController;
     public float defaultHeight = 2f;
-    private const int manaConsumeMultiplier = 5;
     private bool canMove = true;
     private bool hasJumped = false;
     private bool isRunning = false;
     private float timeWhenLastGrounded = 0.0f;
     private float timeWhenLastJumpAction = 0.0f;
     public float walkSpeed = 6f;
-    public float runSpeed = 12f;
     public float jumpPower = 10f;
     public float gravity = 15f;
     public float bufferTime = 0.1f;
-    private bool doubleJumpAvailable = false;
-    public float jumpDelay = 0.5f;
-    private float doubleJumpManaCost = 20f;
     
     // In scene objects
     private float trampolinePower = 15f;
     private float timeWhenLastOnTrampoline = 0.0f;
+
+    // Abilities
+    public float jumpDelay = 0.5f;
+    public float placementCooldown = 1f;
+    private const int manaConsumeMultiplier = 5;
+    public float runSpeed = 12f;
+    private bool doubleJumpAvailable = false;
+    public float doubleJumpManaCost = 20f;
+    public float platformManaCost = 40f;
+    public GameObject abilityPlatform;
+    private bool placingPlatform = false;
+    private float timeWhenLastPlacedPlatform;
+    private GameObject platformToPlace;
 
 
     public void Start()
@@ -67,6 +76,8 @@ public class PlayerControl : MonoBehaviour
         jumpAction = InputSystem.actions.FindAction("Jump");
         sprintAction = InputSystem.actions.FindAction("Sprint");
         lookAction = InputSystem.actions.FindAction("Look");
+        selectAction = InputSystem.actions.FindAction("Select");
+        placeAction = InputSystem.actions.FindAction("Place");
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
@@ -75,6 +86,7 @@ public class PlayerControl : MonoBehaviour
     {
         CheckForMovement();
         CheckForMouseMovement();
+        CheckForMouseButton();
     }
 
     private void CheckForMovement()
@@ -219,6 +231,51 @@ public class PlayerControl : MonoBehaviour
 
             Vector3 pointToLookAt = new Vector3(0, 0, 0);
             playerCamera.transform.LookAt(this.transform.position + pointToLookAt);
+        }
+    }
+
+    private void CheckForMouseButton()
+    {
+        if (Time.time - timeWhenLastPlacedPlatform < placementCooldown)
+        {
+            return;
+        }
+
+        if (selectAction.IsPressed())
+        {
+            if (!Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward, out RaycastHit hit, 25f, groundMask))
+            {
+                return;
+            }
+
+            if (!placingPlatform)
+            {
+                platformToPlace = Instantiate(abilityPlatform);
+                platformToPlace.GetComponentInChildren<BoxCollider>().enabled = false;
+                placingPlatform = true;
+            }
+
+            platformToPlace.transform.position = hit.point;
+            platformToPlace.transform.rotation = Quaternion.LookRotation(hit.normal);
+        }
+        else
+        {
+            Destroy(platformToPlace);
+            platformToPlace = null;
+            placingPlatform = false;
+        }
+
+        if (placeAction.IsPressed() && placingPlatform)
+        {
+            ChangeHealth(-platformManaCost);
+            placingPlatform = false;
+            platformToPlace.GetComponentInChildren<BoxCollider>().enabled = true;
+            foreach (Transform child in platformToPlace.transform)
+            {
+                child.gameObject.layer = 0;
+            }
+            timeWhenLastPlacedPlatform = Time.time;
+            platformToPlace = null;
         }
     }
     public void OnControllerColliderHit(ControllerColliderHit hit)
