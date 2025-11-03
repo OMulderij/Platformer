@@ -10,9 +10,12 @@ public class AbilityPlatform : MonoBehaviour
     public ParticleSystem destroyParticles;
     private float timeWhenSpawned = 0.0f;
     private bool animationPlayed = false;
+    private PlayerControl player;
+    public LayerMask playerMask;
 
-    public void StartTimer()
+    public void StartTimer(PlayerControl controller)
     {
+        player = controller;
         timeWhenSpawned = Time.time;
         this.transform.localScale = new Vector3(1, 1, 0);
 
@@ -33,6 +36,15 @@ public class AbilityPlatform : MonoBehaviour
         {
             Vector3 currentScale = new Vector3(1, 1, Mathf.Lerp(0, 1, (Time.time - timeWhenSpawned) / animationLength));
             this.transform.localScale = currentScale;
+
+
+            Vector3 spherePos = this.transform.forward * (Time.time - timeWhenSpawned) / animationLength * 4 + this.transform.position;
+            bool foundPlayer = Physics.CheckSphere(spherePos, 1f, playerMask);
+
+            if (foundPlayer)
+            {
+                player.ApplyForce(this.transform.rotation * new Vector3(1,1,1));
+            }
         }
         else
         {

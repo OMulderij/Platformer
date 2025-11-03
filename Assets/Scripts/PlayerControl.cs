@@ -6,6 +6,7 @@ using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.TextCore.Text;
 
 
 [RequireComponent(typeof(CharacterController))]
@@ -334,7 +335,7 @@ public class PlayerControl : MonoBehaviour
             placingPlatform = false;
 
             platformToPlace.GetComponentInChildren<BoxCollider>().enabled = true;
-            platformToPlace.GetComponent<AbilityPlatform>().StartTimer();
+            platformToPlace.GetComponent<AbilityPlatform>().StartTimer(this);
 
             foreach (Transform child in platformToPlace.transform)
             {
@@ -363,6 +364,11 @@ public class PlayerControl : MonoBehaviour
     public void TrampolineHit()
     {
         timeWhenLastOnTrampoline = Time.time;
+    }
+
+    public void ApplyForce(Vector3 direction)
+    {
+        characterController.Move(direction * Time.deltaTime);
     }
 
 

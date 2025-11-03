@@ -9785,7 +9785,7 @@ GameObject:
   - component: {fileID: 2831657710244696418}
   - component: {fileID: 804709451694291866}
   m_Layer: 2
-  m_Name: Spawnable platform
+  m_Name: AbilityPlatform
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9826,3 +9826,6 @@ MonoBehaviour:
   platform: {fileID: 889783842103659534}
   spawnParticles: {fileID: 3288860949535681212}
   destroyParticles: {fileID: 8736488331075172509}
+  playerMask:
+    serializedVersion: 2
+    m_Bits: 16
