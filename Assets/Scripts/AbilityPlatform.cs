@@ -24,6 +24,11 @@ public class AbilityPlatform : MonoBehaviour
 
     public void FixedUpdate()
     {
+        if (timeWhenSpawned == 0.0f)
+        {
+            return;
+        }
+        
         if (Time.time - timeWhenSpawned < animationLength)
         {
             Vector3 currentScale = new Vector3(1, 1, Mathf.Lerp(0, 1, (Time.time - timeWhenSpawned) / animationLength));

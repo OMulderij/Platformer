@@ -25,6 +25,10 @@ public class PlayerControl : MonoBehaviour
     public float lookXLimit = 75f;
     private float pitch = 0;
     private float yaw = 0;
+    private bool aiming = false;
+    private float timeWhenChangedAimState = 0.0f;
+    private float aimTransitionLength = 0.1f;
+    private bool inAimingTransition = false;
     
     // Health
     public float maxHealth = 100.0f;
@@ -65,6 +69,7 @@ public class PlayerControl : MonoBehaviour
     private bool placingPlatform = false;
     private float timeWhenLastPlacedPlatform;
     private GameObject platformToPlace;
+    public float maxPlatformSpawnLength = 25f;
 
 
     public void Start()
@@ -220,7 +225,35 @@ public class PlayerControl : MonoBehaviour
 
             Quaternion rotation = Quaternion.Euler(pitch, yaw, 0f);
 
-            Vector3 offset = rotation * new Vector3(0f, 0f, -5.0f);
+            Vector3 offset = new(0f, 0f, -5.0f);
+
+            float nextToPlayer = 0f;
+            Vector3 aimingOffset = new Vector3(1f, 0.5f, offset.z / 2);
+            Vector3 pointToLookAt = new();
+            if (inAimingTransition)
+            {
+                if (aiming)
+                {
+                    offset = Vector3.Lerp(offset, aimingOffset, (Time.time - timeWhenChangedAimState) / aimTransitionLength);
+                    nextToPlayer = Mathf.Lerp(0f, 1f, (Time.time - timeWhenChangedAimState) / aimTransitionLength);
+                }
+                else
+                {
+                    offset = Vector3.Lerp(offset, aimingOffset, 1 - (Time.time - timeWhenChangedAimState) / aimTransitionLength);
+                    nextToPlayer = Mathf.Lerp(0f, 1f, 1 - (Time.time - timeWhenChangedAimState) / aimTransitionLength);
+                }
+            }
+            else if (aiming)
+            {
+                offset = aimingOffset;
+                nextToPlayer = 1;
+            }
+            pointToLookAt.x = nextToPlayer;
+            pointToLookAt = playerCamera.transform.rotation * pointToLookAt;
+            pointToLookAt.y = 0.5f;
+
+            offset = rotation * offset;
+
             playerCamera.transform.position = transform.position + offset;
 
             Vector3 camForward = playerCamera.transform.forward;
@@ -229,27 +262,45 @@ public class PlayerControl : MonoBehaviour
             Quaternion targetRotation = Quaternion.LookRotation(camForward);
             this.transform.rotation = Quaternion.Lerp(this.transform.rotation, targetRotation, Time.deltaTime * 10f);
 
-            Vector3 pointToLookAt = new Vector3(0, 0, 0);
             playerCamera.transform.LookAt(this.transform.position + pointToLookAt);
         }
     }
 
     private void CheckForMouseButton()
     {
+        if (Time.time - timeWhenChangedAimState < aimTransitionLength)
+        {
+            inAimingTransition = true;
+        }
+        else
+        {
+            inAimingTransition = false;
+        }
+
         if (Time.time - timeWhenLastPlacedPlatform < placementCooldown)
         {
+            aiming = false;
             return;
         }
 
         if (currentHealth < platformManaCost)
         {
+            aiming = false;
             return;
         }
 
         if (selectAction.IsPressed())
         {
-            if (!Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward, out RaycastHit hit, 25f, groundMask))
+            if (!aiming)
             {
+                aiming = true;
+                timeWhenChangedAimState = Time.time;
+            }
+            
+            if (!Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward, out RaycastHit hit, maxPlatformSpawnLength, groundMask))
+            {
+                Destroy(platformToPlace);
+                placingPlatform = false;
                 return;
             }
 
@@ -264,6 +315,12 @@ public class PlayerControl : MonoBehaviour
         }
         else
         {
+            if (aiming)
+            {
+                aiming = false;
+                timeWhenChangedAimState = Time.time;
+            }
+
             Destroy(platformToPlace);
             platformToPlace = null;
             placingPlatform = false;
@@ -272,6 +329,8 @@ public class PlayerControl : MonoBehaviour
         if (placeAction.IsPressed() && placingPlatform)
         {
             ChangeHealth(-platformManaCost);
+            inAimingTransition = true;
+            timeWhenChangedAimState = Time.time;
             placingPlatform = false;
 
             platformToPlace.GetComponentInChildren<BoxCollider>().enabled = true;
