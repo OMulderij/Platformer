@@ -46,7 +46,6 @@ public class PlayerControl : MonoBehaviour
     public float defaultHeight = 2f;
     private bool canMove = true;
     private bool hasJumped = false;
-    private bool isRunning = false;
     private float timeWhenLastGrounded = 0.0f;
     private float timeWhenLastJumpAction = 0.0f;
     public float walkSpeed = 6f;
@@ -71,6 +70,10 @@ public class PlayerControl : MonoBehaviour
     private float timeWhenLastPlacedPlatform;
     private GameObject platformToPlace;
     public float maxPlatformSpawnLength = 25f;
+
+    // Particles
+    public ParticleSystem doubleJumpParticles;
+    public ParticleSystem sprintParticles;
 
 
     public void Start()
@@ -101,16 +104,24 @@ public class PlayerControl : MonoBehaviour
         Vector3 forward = transform.TransformDirection(Vector3.forward);
         Vector3 right = transform.TransformDirection(Vector3.right);
 
-
+        // if (doubleJumpParticles.isPlaying)
+        // {
+        //     doubleJumpParticles.transform.position = doubleJumpLocation;
+        // }
 
         Vector2 moveValue = new Vector2(0, 0);
-        isRunning = false;
+        bool isSprinting = false;
         if (canMove && moveAction.IsPressed())
         {
             moveValue = moveAction.ReadValue<Vector2>();
             if (sprintAction.IsPressed() && currentHealth > 0)
             {
-                isRunning = true;
+                isSprinting = true;
+                // sprintParticles.Play();
+                ParticleSystem.EmissionModule em = sprintParticles.emission;
+                em.enabled = true;
+
+                ChangeHealth(-Time.deltaTime * manaConsumeMultiplier);
                 moveValue *= runSpeed;
             }
             else
@@ -119,10 +130,13 @@ public class PlayerControl : MonoBehaviour
             }
         }
 
-        if (isRunning)
+        if (!isSprinting)
         {
-            ChangeHealth(-Time.deltaTime * manaConsumeMultiplier);
+            // sprintParticles.Stop();
+            ParticleSystem.EmissionModule em = sprintParticles.emission;
+            em.enabled = false;
         }
+
 
         moveDirection = (forward * moveValue.y) + (right * moveValue.x);
 
@@ -137,6 +151,7 @@ public class PlayerControl : MonoBehaviour
             {
                 jump = true;
                 doubleJumpAvailable = false;
+                doubleJumpParticles.Play();
                 ChangeHealth(-doubleJumpManaCost);
             }
         }
@@ -269,6 +284,28 @@ public class PlayerControl : MonoBehaviour
 
     private void CheckForMouseButton()
     {
+        if (Time.time - timeWhenLastPlacedPlatform < placementCooldown)
+        {
+            aiming = false;
+            return;
+        }
+
+        if (aiming && currentHealth < platformManaCost)
+        {
+            inAimingTransition = true;
+            aiming = false;
+            placingPlatform = false;
+            timeWhenChangedAimState = Time.time;
+
+            Destroy(platformToPlace);
+        }
+
+        if (currentHealth < platformManaCost)
+        {
+            aiming = false;
+            return;
+        }
+
         if (Time.time - timeWhenChangedAimState < aimTransitionLength)
         {
             inAimingTransition = true;
@@ -276,18 +313,6 @@ public class PlayerControl : MonoBehaviour
         else
         {
             inAimingTransition = false;
-        }
-
-        if (Time.time - timeWhenLastPlacedPlatform < placementCooldown)
-        {
-            aiming = false;
-            return;
-        }
-
-        if (currentHealth < platformManaCost)
-        {
-            aiming = false;
-            return;
         }
 
         if (selectAction.IsPressed())

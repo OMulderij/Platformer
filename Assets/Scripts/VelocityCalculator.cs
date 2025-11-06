@@ -19,7 +19,6 @@ public class VelocityCalculator : MonoBehaviour
         _previousPosition = transform.position;
     }
 
-    // player script gets the platform's velocity from here
     public Vector3 GetVelocity(Transform playerPos)
     {
         Vector3 positionDifference = _velocity * Time.deltaTime;

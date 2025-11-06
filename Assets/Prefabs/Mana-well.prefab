@@ -65,6 +65,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: 22c94ab863be02040b2bd820cc0636d0, type: 2}
     - target: {fileID: 881850356283265528, guid: 9e5ce2673305b6e4b8b499b3b49cdf32, type: 3}
+      propertyPath: m_Name
+      value: WellEffect
+      objectReference: {fileID: 0}
+    - target: {fileID: 881850356283265528, guid: 9e5ce2673305b6e4b8b499b3b49cdf32, type: 3}
       propertyPath: m_Layer
       value: 4
       objectReference: {fileID: 0}
