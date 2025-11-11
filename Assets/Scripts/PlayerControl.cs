@@ -6,6 +6,7 @@ using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.XR;
 using UnityEngine.TextCore.Text;
 
 
@@ -21,9 +22,9 @@ public class PlayerControl : MonoBehaviour
     private InputAction placeAction;
 
     // Camera
-    public Camera playerCamera;
-    public float lookSpeed = 4f;
-    public float lookXLimit = 75f;
+    [SerializeField] private Camera playerCamera;
+    [SerializeField] private float lookSpeed = 4f;
+    [SerializeField] private float lookXLimit = 75f;
     private float pitch = 0;
     private float yaw = 0;
     private bool aiming = false;
@@ -39,41 +40,43 @@ public class PlayerControl : MonoBehaviour
     // Movement
     private Vector3 moveDirection = Vector3.zero;
     private Vector3 momentumVar;
-    public LayerMask groundMask;
+    [SerializeField] private LayerMask groundMask;
 
     // CharacterController
     private CharacterController characterController;
-    public float defaultHeight = 2f;
     private bool canMove = true;
     private bool hasJumped = false;
     private float timeWhenLastGrounded = 0.0f;
     private float timeWhenLastJumpAction = 0.0f;
-    public float walkSpeed = 6f;
-    public float jumpPower = 10f;
-    public float gravity = 15f;
-    public float bufferTime = 0.1f;
+    [SerializeField] private float walkSpeed = 6f;
+    [SerializeField] private float jumpPower = 10f;
+    [SerializeField] private float gravity = 15f;
+    [SerializeField] private float bufferTime = 0.1f;
     
     // In scene objects
     private float trampolinePower = 15f;
     private float timeWhenLastOnTrampoline = 0.0f;
 
     // Abilities
-    public float jumpDelay = 0.5f;
-    public float placementCooldown = 1f;
+    [SerializeField] private float jumpDelay = 0.5f;
+    [SerializeField] private float placementCooldown = 1f;
     private const int manaConsumeMultiplier = 5;
-    public float runSpeed = 12f;
+    [SerializeField] private float runSpeed = 12f;
     private bool doubleJumpAvailable = false;
-    public float doubleJumpManaCost = 20f;
-    public float platformManaCost = 40f;
+    [SerializeField] private float doubleJumpManaCost = 20f;
+    [SerializeField] private float platformManaCost = 40f;
     public GameObject abilityPlatform;
     private bool placingPlatform = false;
     private float timeWhenLastPlacedPlatform;
     private GameObject platformToPlace;
-    public float maxPlatformSpawnLength = 25f;
+    [SerializeField] private float maxPlatformSpawnLength = 25f;
 
-    // Particles
-    public ParticleSystem doubleJumpParticles;
-    public ParticleSystem sprintParticles;
+    // Particles & Animations
+    [SerializeField] private ParticleSystem doubleJumpParticles;
+    [SerializeField] private ParticleSystem sprintParticles;
+    [SerializeField] private GameObject wizardModel;
+    private Animator wizardAnimator;
+    [SerializeField] private Transform wizardHeadBone;
 
 
     public void Start()
@@ -89,6 +92,7 @@ public class PlayerControl : MonoBehaviour
         placeAction = InputSystem.actions.FindAction("Place");
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        wizardAnimator = wizardModel.GetComponent<Animator>();
     }
 
     public void Update()
@@ -117,7 +121,6 @@ public class PlayerControl : MonoBehaviour
             if (sprintAction.IsPressed() && currentHealth > 0)
             {
                 isSprinting = true;
-                // sprintParticles.Play();
                 ParticleSystem.EmissionModule em = sprintParticles.emission;
                 em.enabled = true;
 
@@ -132,7 +135,6 @@ public class PlayerControl : MonoBehaviour
 
         if (!isSprinting)
         {
-            // sprintParticles.Stop();
             ParticleSystem.EmissionModule em = sprintParticles.emission;
             em.enabled = false;
         }
@@ -279,11 +281,13 @@ public class PlayerControl : MonoBehaviour
             this.transform.rotation = Quaternion.Lerp(this.transform.rotation, targetRotation, Time.deltaTime * 10f);
 
             playerCamera.transform.LookAt(this.transform.position + pointToLookAt);
+            wizardHeadBone.localRotation = Quaternion.Euler(0, 0, -pitch);
         }
     }
 
     private void CheckForMouseButton()
     {
+        wizardAnimator.SetBool("IsCasting", false);
         if (Time.time - timeWhenLastPlacedPlatform < placementCooldown)
         {
             aiming = false;
@@ -317,12 +321,13 @@ public class PlayerControl : MonoBehaviour
 
         if (selectAction.IsPressed())
         {
+            wizardAnimator.SetBool("IsCasting", true);
             if (!aiming)
             {
                 aiming = true;
                 timeWhenChangedAimState = Time.time;
             }
-            
+
             if (!Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward, out RaycastHit hit, maxPlatformSpawnLength, groundMask))
             {
                 Destroy(platformToPlace);
