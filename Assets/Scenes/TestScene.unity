@@ -127,6 +127,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3200031627094269971, guid: 02f3535c6579d7744b7955a7afa72910, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 28.5
+      objectReference: {fileID: 0}
     - target: {fileID: 3991664655033930510, guid: 02f3535c6579d7744b7955a7afa72910, type: 3}
       propertyPath: m_Name
       value: Mana-well (1)
@@ -5514,8 +5518,8 @@ CharacterController:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Height: 2
-  m_Radius: 0.5
+  m_Height: 2.9039927
+  m_Radius: 0.78929085
   m_SlopeLimit: 45
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
@@ -6281,7 +6285,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 764e6d283381a074380b437e02b6e814, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1
+      value: -1.186
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 764e6d283381a074380b437e02b6e814, type: 3}
       propertyPath: m_LocalPosition.z
@@ -6339,10 +6343,54 @@ PrefabInstance:
       propertyPath: m_Name
       value: Wizard
       objectReference: {fileID: 0}
+    - target: {fileID: 4668370858662620147, guid: 764e6d283381a074380b437e02b6e814, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.8348431
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668370858662620147, guid: 764e6d283381a074380b437e02b6e814, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.55048794
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668370858662620147, guid: 764e6d283381a074380b437e02b6e814, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668370858662620147, guid: 764e6d283381a074380b437e02b6e814, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668370858662620147, guid: 764e6d283381a074380b437e02b6e814, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -66.801
+      objectReference: {fileID: 0}
     - target: {fileID: 5866666021909216657, guid: 764e6d283381a074380b437e02b6e814, type: 3}
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: e34260b38032e3a419ec2e51da550b99, type: 2}
+    - target: {fileID: 6686267649023269049, guid: 764e6d283381a074380b437e02b6e814, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.81274503
+      objectReference: {fileID: 0}
+    - target: {fileID: 6686267649023269049, guid: 764e6d283381a074380b437e02b6e814, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.5826196
+      objectReference: {fileID: 0}
+    - target: {fileID: 6686267649023269049, guid: 764e6d283381a074380b437e02b6e814, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6686267649023269049, guid: 764e6d283381a074380b437e02b6e814, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6686267649023269049, guid: 764e6d283381a074380b437e02b6e814, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 71.27
+      objectReference: {fileID: 0}
+    - target: {fileID: 6686267649023269049, guid: 764e6d283381a074380b437e02b6e814, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -6944,7 +6992,7 @@ Transform:
   m_GameObject: {fileID: 1998493849}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 28.8, y: 2.95, z: 1.2999992}
+  m_LocalPosition: {x: 28.8, y: 3.22, z: 1.2999992}
   m_LocalScale: {x: 21.796032, y: 0.27773, z: 4.2204}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7160,7 +7208,7 @@ Transform:
   m_GameObject: {fileID: 2109663909}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 39.59, y: -0.17, z: 1.2999992}
+  m_LocalPosition: {x: 39.59, y: -0.76, z: 1.2999992}
   m_LocalScale: {x: 3.1749, y: 1, z: 3.3747}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -12259,6 +12307,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3200031627094269971, guid: 02f3535c6579d7744b7955a7afa72910, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 10.27
+      objectReference: {fileID: 0}
+    - target: {fileID: 3200031627094269971, guid: 02f3535c6579d7744b7955a7afa72910, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 6.04
+      objectReference: {fileID: 0}
     - target: {fileID: 3991664655033930510, guid: 02f3535c6579d7744b7955a7afa72910, type: 3}
       propertyPath: m_Name
       value: Mana-well
