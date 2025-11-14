@@ -6,26 +6,23 @@ public class GameUIHandler : MonoBehaviour
 {
     public PlayerControl PlayerControl;
     private UIDocument UIDoc;
-    private Label m_HealthLabel;
-    private VisualElement m_HealthBarMask;
+    private VisualElement m_ManaBarMask;
     
 
 
     private void Start()
     {
         UIDoc = GetComponent<UIDocument>();
-        m_HealthLabel = UIDoc.rootVisualElement.Q<Label>("ManaLabel");
-        m_HealthBarMask = UIDoc.rootVisualElement.Q<VisualElement>("ManaBarMask");
-        PlayerControl.OnHealthChange += HealthChanged;
-        HealthChanged();
+        m_ManaBarMask = UIDoc.rootVisualElement.Q<VisualElement>("ManaBarMask");
+        PlayerControl.OnManaChange += ManaChanged;
+        ManaChanged();
     }
 
 
-    void HealthChanged()
+    void ManaChanged()
     {
-        m_HealthLabel.text = $"{Math.Round(PlayerControl.currentHealth)}/{PlayerControl.maxHealth}";
-        float healthRatio = (float)PlayerControl.currentHealth / PlayerControl.maxHealth;
-        float healthPercent = Mathf.Lerp(8, 88, healthRatio);
-        m_HealthBarMask.style.width = Length.Percent(healthPercent);
+        float manaRatio = (float)PlayerControl.currentMana / PlayerControl.maxMana;
+        float manaPercent = Mathf.Lerp(3.8f, 97.5f, manaRatio);
+        m_ManaBarMask.style.width = Length.Percent(manaPercent);
     }
 }

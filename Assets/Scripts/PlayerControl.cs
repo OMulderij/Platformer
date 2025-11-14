@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using Unity.Cinemachine;
 using Unity.Mathematics;
 using Unity.VisualScripting;
@@ -32,10 +33,10 @@ public class PlayerControl : MonoBehaviour
     private float aimTransitionLength = 0.1f;
     private bool inAimingTransition = false;
     
-    // Health
-    public float maxHealth = 100.0f;
-    public float currentHealth;
-    public Action OnHealthChange;
+    // Mana
+    public float maxMana = 100.0f;
+    public float currentMana;
+    public Action OnManaChange;
     
     // Movement
     private Vector3 moveDirection = Vector3.zero;
@@ -81,7 +82,7 @@ public class PlayerControl : MonoBehaviour
 
     public void Start()
     {
-        currentHealth = maxHealth;
+        currentMana = maxMana;
 
         characterController = GetComponent<CharacterController>();
         moveAction = InputSystem.actions.FindAction("Move");
@@ -104,7 +105,7 @@ public class PlayerControl : MonoBehaviour
 
     private void CheckForMovement()
     {
-        bool isGrounded = Physics.CheckSphere(transform.position - new Vector3(0, characterController.height / 2, 0), 0.2f, groundMask);
+        bool isGrounded = Physics.CheckSphere(transform.position - new Vector3(0, characterController.height / 2, 0), 0.25f, groundMask);
         Vector3 forward = transform.TransformDirection(Vector3.forward);
         Vector3 right = transform.TransformDirection(Vector3.right);
 
@@ -118,13 +119,13 @@ public class PlayerControl : MonoBehaviour
         if (canMove && moveAction.IsPressed())
         {
             moveValue = moveAction.ReadValue<Vector2>();
-            if (sprintAction.IsPressed() && currentHealth > 0)
+            if (sprintAction.IsPressed() && currentMana > 0)
             {
                 isSprinting = true;
                 ParticleSystem.EmissionModule em = sprintParticles.emission;
                 em.enabled = true;
 
-                ChangeHealth(-Time.deltaTime * manaConsumeMultiplier);
+                ChangeManaAmount(-Time.deltaTime * manaConsumeMultiplier);
                 moveValue *= runSpeed;
             }
             else
@@ -149,12 +150,12 @@ public class PlayerControl : MonoBehaviour
         {
             timeWhenLastJumpAction = Time.time;
 
-            if (doubleJumpAvailable && currentHealth >= doubleJumpManaCost && Time.time - timeWhenLastGrounded > jumpDelay)
+            if (doubleJumpAvailable && currentMana >= doubleJumpManaCost && Time.time - timeWhenLastGrounded > jumpDelay)
             {
                 jump = true;
                 doubleJumpAvailable = false;
                 doubleJumpParticles.Play();
-                ChangeHealth(-doubleJumpManaCost);
+                ChangeManaAmount(-doubleJumpManaCost);
             }
         }
 
@@ -250,15 +251,18 @@ public class PlayerControl : MonoBehaviour
             Vector3 pointToLookAt = new();
             if (inAimingTransition)
             {
+                float pointInTransition = (Time.time - timeWhenChangedAimState) / aimTransitionLength;
                 if (aiming)
                 {
-                    offset = Vector3.Lerp(offset, aimingOffset, (Time.time - timeWhenChangedAimState) / aimTransitionLength);
-                    nextToPlayer = Mathf.Lerp(0f, 1f, (Time.time - timeWhenChangedAimState) / aimTransitionLength);
+                    offset = Vector3.Lerp(offset, aimingOffset, pointInTransition);
+                    nextToPlayer = Mathf.Lerp(0f, 1f, pointInTransition);
+                    playerCamera.fieldOfView = Mathf.Lerp(60f, 50f, pointInTransition);
                 }
                 else
                 {
-                    offset = Vector3.Lerp(offset, aimingOffset, 1 - (Time.time - timeWhenChangedAimState) / aimTransitionLength);
-                    nextToPlayer = Mathf.Lerp(0f, 1f, 1 - (Time.time - timeWhenChangedAimState) / aimTransitionLength);
+                    offset = Vector3.Lerp(offset, aimingOffset, 1 - pointInTransition);
+                    nextToPlayer = Mathf.Lerp(0f, 1f, 1 - pointInTransition);
+                    playerCamera.fieldOfView = Mathf.Lerp(50f, 60f, pointInTransition);
                 }
             }
             else if (aiming)
@@ -294,7 +298,7 @@ public class PlayerControl : MonoBehaviour
             return;
         }
 
-        if (aiming && currentHealth < platformManaCost)
+        if (aiming && currentMana < platformManaCost)
         {
             inAimingTransition = true;
             aiming = false;
@@ -304,7 +308,7 @@ public class PlayerControl : MonoBehaviour
             Destroy(platformToPlace);
         }
 
-        if (currentHealth < platformManaCost)
+        if (currentMana < platformManaCost)
         {
             aiming = false;
             return;
@@ -359,7 +363,7 @@ public class PlayerControl : MonoBehaviour
 
         if (placeAction.IsPressed() && placingPlatform)
         {
-            ChangeHealth(-platformManaCost);
+            ChangeManaAmount(-platformManaCost);
             inAimingTransition = true;
             timeWhenChangedAimState = Time.time;
             placingPlatform = false;
@@ -402,21 +406,21 @@ public class PlayerControl : MonoBehaviour
     }
 
 
-    public void ChangeHealth(float changeAmount)
+    public void ChangeManaAmount(float changeAmount)
     {
-        currentHealth += changeAmount;
+        currentMana += changeAmount;
 
-        if (currentHealth < 0)
+        if (currentMana < 0)
         {
-            currentHealth = 0;
+            currentMana = 0;
         }
 
-        OnHealthChange?.Invoke();
+        OnManaChange?.Invoke();
     }
 
-    public void HealToFull()
+    public void FullyFillMana()
     {
-        currentHealth = maxHealth;
-        OnHealthChange?.Invoke();
+        currentMana = maxMana;
+        OnManaChange?.Invoke();
     }
 }

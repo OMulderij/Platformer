@@ -9,6 +9,6 @@ public class ManaWell : MonoBehaviour
             return;
         }
         PlayerControl player = collider.GetComponent<PlayerControl>();
-        player.HealToFull();
+        player.FullyFillMana();
     }
 }

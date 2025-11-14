@@ -6,11 +6,15 @@ public class VelocityCalculator : MonoBehaviour
 {
     private Vector3 _previousPosition;
     private Vector3 _velocity;
-    public Spinningplatform platform;
+    private Spinningplatform spinningPlatform;
 
-    private void Start()
+    private void Awake()
     {
         _previousPosition = transform.position;
+        if (this.TryGetComponent<Spinningplatform>(out Spinningplatform platform))
+        {
+            spinningPlatform = platform;
+        }
     }
 
     private void Update()
@@ -19,15 +23,12 @@ public class VelocityCalculator : MonoBehaviour
         _previousPosition = transform.position;
     }
 
-    public Vector3 GetVelocity(Transform playerPos)
+    public virtual Vector3 GetVelocity(Transform playerPos)
     {
         Vector3 positionDifference = _velocity * Time.deltaTime;
-        if (platform != null)
+        if (spinningPlatform != null)
         {
-            Quaternion rotation = Quaternion.Euler(platform.RotateSpeedX * Time.deltaTime, platform.RotateSpeedY * Time.deltaTime, platform.RotateSpeedZ * Time.deltaTime);
-            Vector3 position = rotation * (playerPos.position - platform.transform.position);
-
-            positionDifference += position - (playerPos.position - platform.transform.position);
+            positionDifference += spinningPlatform.GetVelocity(playerPos);
         }
         return positionDifference;
     }

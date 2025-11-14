@@ -5653,8 +5653,8 @@ MonoBehaviour:
   playerCamera: {fileID: 330585545}
   lookSpeed: 2
   lookXLimit: 75
-  maxHealth: 100
-  currentHealth: 0
+  maxMana: 100
+  currentMana: 100
   groundMask:
     serializedVersion: 2
     m_Bits: 1
@@ -6459,7 +6459,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 72f642d7ff800884bae9a40cc09f2ee0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  platform: {fileID: 1642295832}
 --- !u!64 &1642295834
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -6598,7 +6597,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 72f642d7ff800884bae9a40cc09f2ee0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  platform: {fileID: 1714232793}
 --- !u!64 &1714232795
 MeshCollider:
   m_ObjectHideFlags: 0
