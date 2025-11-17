@@ -66,7 +66,7 @@ public class PlayerControl : MonoBehaviour
     private bool doubleJumpAvailable = false;
     [SerializeField] private float doubleJumpManaCost = 20f;
     [SerializeField] private float platformManaCost = 40f;
-    public GameObject abilityPlatform;
+    [SerializeField] private GameObject abilityPlatform;
     private bool placingPlatform = false;
     private float timeWhenLastPlacedPlatform;
     private GameObject platformToPlace;
@@ -148,8 +148,6 @@ public class PlayerControl : MonoBehaviour
         bool jump = false;
         if (jumpAction.IsPressed())
         {
-            timeWhenLastJumpAction = Time.time;
-
             if (doubleJumpAvailable && currentMana >= doubleJumpManaCost && Time.time - timeWhenLastGrounded > jumpDelay)
             {
                 jump = true;
@@ -157,6 +155,7 @@ public class PlayerControl : MonoBehaviour
                 doubleJumpParticles.Play();
                 ChangeManaAmount(-doubleJumpManaCost);
             }
+            timeWhenLastJumpAction = Time.time;
         }
 
         if (!hasJumped && Math.Abs(timeWhenLastGrounded - timeWhenLastJumpAction) < bufferTime)
