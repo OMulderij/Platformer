@@ -8,6 +8,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.XR;
+using UnityEngine.SceneManagement;
 using UnityEngine.TextCore.Text;
 
 
@@ -21,6 +22,7 @@ public class PlayerControl : MonoBehaviour
     private InputAction lookAction;
     private InputAction selectAction;
     private InputAction placeAction;
+    private InputAction resetAction;
 
     // Camera
     [SerializeField] private Camera playerCamera;
@@ -91,6 +93,7 @@ public class PlayerControl : MonoBehaviour
         lookAction = InputSystem.actions.FindAction("Look");
         selectAction = InputSystem.actions.FindAction("Select");
         placeAction = InputSystem.actions.FindAction("Place");
+        resetAction = InputSystem.actions.FindAction("Reset");
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         wizardAnimator = wizardModel.GetComponent<Animator>();
@@ -101,18 +104,19 @@ public class PlayerControl : MonoBehaviour
         CheckForMovement();
         CheckForMouseMovement();
         CheckForMouseButton();
+
+        if (resetAction.IsPressed())
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
     }
+
 
     private void CheckForMovement()
     {
         bool isGrounded = Physics.CheckSphere(transform.position - new Vector3(0, characterController.height / 2, 0), 0.25f, groundMask);
         Vector3 forward = transform.TransformDirection(Vector3.forward);
         Vector3 right = transform.TransformDirection(Vector3.right);
-
-        // if (doubleJumpParticles.isPlaying)
-        // {
-        //     doubleJumpParticles.transform.position = doubleJumpLocation;
-        // }
 
         Vector2 moveValue = new Vector2(0, 0);
         bool isSprinting = false;
@@ -139,7 +143,6 @@ public class PlayerControl : MonoBehaviour
             ParticleSystem.EmissionModule em = sprintParticles.emission;
             em.enabled = false;
         }
-
 
         moveDirection = (forward * moveValue.y) + (right * moveValue.x);
 
@@ -242,12 +245,17 @@ public class PlayerControl : MonoBehaviour
             pitch = Mathf.Clamp(pitch, -lookXLimit, lookXLimit);
 
             Quaternion rotation = Quaternion.Euler(pitch, yaw, 0f);
-
             Vector3 offset = new(0f, 0f, -5.0f);
+            if (Physics.Raycast(transform.position, -playerCamera.transform.forward, out RaycastHit hit, 5f))
+            {
+                offset.z = -Vector3.Distance(hit.point, transform.position);
+            }
 
             float nextToPlayer = 0f;
             Vector3 aimingOffset = new Vector3(1f, 0.5f, offset.z / 2);
             Vector3 pointToLookAt = new();
+
+
             if (inAimingTransition)
             {
                 float pointInTransition = (Time.time - timeWhenChangedAimState) / aimTransitionLength;

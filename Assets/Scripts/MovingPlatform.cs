@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -5,13 +7,13 @@ public class MovingPlatform : MonoBehaviour
 {
     private bool goingForwards = true;
     private float currentCompletion = 0f;
-    public float timeToFinish = 5f;
+    [SerializeField] private float timeToFinish = 5f;
 
     public Transform startPoint;
     public Transform endPoint;
-    public GameObject platform;
+    [SerializeField] private GameObject platform;
 
-    void Start()
+    void Awake()
     {
         platform.transform.position = startPoint.position;
     }
@@ -36,7 +38,7 @@ public class MovingPlatform : MonoBehaviour
                 goingForwards = true;
             }
         }
-        
+
         platform.transform.position = Vector3.Lerp(startPoint.position, endPoint.position, currentCompletion / timeToFinish);
     }
 }
