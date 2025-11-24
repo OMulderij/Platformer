@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
+[RequireComponent(typeof(UIDocument))]
 public class GameUIHandler : MonoBehaviour
 {
     public PlayerControl PlayerControl;

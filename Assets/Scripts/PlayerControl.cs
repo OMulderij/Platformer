@@ -15,6 +15,9 @@ using UnityEngine.TextCore.Text;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerControl : MonoBehaviour
 {
+    // Timer
+    private float timeWhenStarted;
+    private bool inMenu = false;
     // Inputs
     private InputAction moveAction;
     private InputAction jumpAction;
@@ -78,8 +81,8 @@ public class PlayerControl : MonoBehaviour
     [SerializeField] private ParticleSystem doubleJumpParticles;
     [SerializeField] private ParticleSystem sprintParticles;
     [SerializeField] private GameObject wizardModel;
-    private Animator wizardAnimator;
     [SerializeField] private Transform wizardHeadBone;
+    private Animator wizardAnimator;
 
 
     public void Start()
@@ -98,6 +101,10 @@ public class PlayerControl : MonoBehaviour
         Cursor.visible = false;
         wizardAnimator = wizardModel.GetComponent<Animator>();
     }
+    public void Awake()
+    {
+        timeWhenStarted = Time.time;
+    }
 
     public void Update()
     {
@@ -105,7 +112,7 @@ public class PlayerControl : MonoBehaviour
         CheckForMouseMovement();
         CheckForMouseButton();
 
-        if (resetAction.IsPressed())
+        if (resetAction.IsPressed() && !inMenu)
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
@@ -246,7 +253,7 @@ public class PlayerControl : MonoBehaviour
 
             Quaternion rotation = Quaternion.Euler(pitch, yaw, 0f);
             Vector3 offset = new(0f, 0f, -5.0f);
-            if (Physics.Raycast(transform.position, -playerCamera.transform.forward, out RaycastHit hit, 5f))
+            if (Physics.Raycast(transform.position, -playerCamera.transform.forward, out RaycastHit hit, 5f, groundMask))
             {
                 offset.z = -Vector3.Distance(hit.point, transform.position);
             }
@@ -429,5 +436,23 @@ public class PlayerControl : MonoBehaviour
     {
         currentMana = maxMana;
         OnManaChange?.Invoke();
+    }
+
+    public void WinGame(string playerName)
+    {
+        float score = Time.time - timeWhenStarted;
+        PlayerPrefs.SetFloat(playerName, score);
+    }
+
+    public string EndScreenTrigger()
+    {
+        canMove = false;
+        inMenu = true;
+        return Convert.ToString(Mathf.Round((Time.time - timeWhenStarted) * 10f) * 0.1f);
+    }
+
+    public void LeaderboardScreenTrigger()
+    {
+        inMenu = false;
     }
 }

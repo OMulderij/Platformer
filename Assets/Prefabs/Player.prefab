@@ -10083,6 +10083,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 537709265495524290, guid: 764e6d283381a074380b437e02b6e814, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: c6552e7fdd8dc1645a95de69ed464cf0, type: 2}
     - target: {fileID: 919132149155446097, guid: 764e6d283381a074380b437e02b6e814, type: 3}
       propertyPath: m_Name
       value: Wizard
