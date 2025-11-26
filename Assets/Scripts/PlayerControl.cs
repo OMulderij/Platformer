@@ -80,6 +80,7 @@ public class PlayerControl : MonoBehaviour
     // Particles & Animations
     [SerializeField] private ParticleSystem doubleJumpParticles;
     [SerializeField] private ParticleSystem sprintParticles;
+    [SerializeField] private ParticleSystem windJumpParticles;
     [SerializeField] private GameObject wizardModel;
     [SerializeField] private Transform wizardHeadBone;
     private Animator wizardAnimator;
@@ -188,6 +189,7 @@ public class PlayerControl : MonoBehaviour
 
             if (Time.time - timeWhenLastOnTrampoline < bufferTime)
             {
+                windJumpParticles.Play();
                 moveDirection.y += trampolinePower;
                 momentumVar.y += trampolinePower;
             }
