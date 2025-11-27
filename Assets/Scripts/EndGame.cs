@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.Collections.LowLevel.Unsafe;
-using Unity.VisualScripting;
-using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -97,11 +94,11 @@ public class EndGame : MonoBehaviour
         errorPrint.visible = false;
 
         allScores = GetScores();
-        Dictionary<string, float> floatScores = new Dictionary<string, float>();
+        List<KeyValuePair<string, float>> floatScores = new List<KeyValuePair<string, float>>();
 
         foreach (KeyValuePair<string, string> s in allScores)
         {
-            floatScores.Add(s.Key, (float)Convert.ToDouble(s.Value));
+            floatScores.Add(new KeyValuePair<string, float>(s.Key, (float)Convert.ToDouble(s.Value)));
         }
         
         int count = 0;

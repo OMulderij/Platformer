@@ -681,11 +681,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6904346950698788970, guid: 7f4682709b9910648b55824b2dcafeaf, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.22
+      value: 2.24
       objectReference: {fileID: 0}
     - target: {fileID: 6904346950698788970, guid: 7f4682709b9910648b55824b2dcafeaf, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -18.8
+      value: -19.13
       objectReference: {fileID: 0}
     - target: {fileID: 6904346950698788970, guid: 7f4682709b9910648b55824b2dcafeaf, type: 3}
       propertyPath: m_LocalRotation.w
@@ -9115,7 +9115,7 @@ GameObject:
   - component: {fileID: 1527323236}
   - component: {fileID: 1527323235}
   m_Layer: 2
-  m_Name: Sprint_tutorial (1)
+  m_Name: Current_tutorial
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9130,7 +9130,7 @@ Transform:
   m_GameObject: {fileID: 1527323233}
   serializedVersion: 2
   m_LocalRotation: {x: -0.7071068, y: 0, z: -0, w: -0.7071068}
-  m_LocalPosition: {x: 0, y: 3.45, z: 77.4}
+  m_LocalPosition: {x: 0, y: 3.45, z: 78.2}
   m_LocalScale: {x: 1.4714, y: 1.4714, z: 0.7357}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -24182,7 +24182,7 @@ Transform:
   m_GameObject: {fileID: 1651719637}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.0133, y: 8.25, z: 168.64}
+  m_LocalPosition: {x: -0.0133, y: 8.46, z: 168.64}
   m_LocalScale: {x: 3.2, y: 3.2, z: 8}
   m_ConstrainProportionsScale: 0
   m_Children: []
